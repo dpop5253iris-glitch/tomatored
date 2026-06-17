@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>eGFR・CCr計算アプリ</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: sans-serif;
+    background: #f2f6fb;
+    color: #222;
+  }
+
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 18px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  }
+
+  h1 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-weight: bold;
+    margin-top: 16px;
+    margin-bottom: 6px;
+    font-size: 16px;
+  }
+
+  input, select {
+    width: 100%;
+    height: 52px;
+    font-size: 18px;
+    padding: 8px 12px;
+    border: 1px solid #bbb;
+    border-radius: 10px;
+    box-sizing: border-box;
+  }
+
+  button {
+    width: 100%;
+    height: 56px;
+    margin-top: 24px;
+    font-size: 18px;
+    font-weight: bold;
+    background: #2f80ed;
+    color: white;
+    border: none;
+    border-radius: 12px;
+  }
+
+  button:active {
+    background: #1c63bd;
+  }
+
+  .result {
+    margin-top: 22px;
+    padding: 18px;
+    background: #eef5ff;
+    border-radius: 12px;
+    font-size: 19px;
+    line-height: 1.8;
+  }
+
+  .note {
+    margin-top: 18px;
+    font-size: 13px;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  .small {
+    font-size: 14px;
+    color: #666;
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="card">
+    <h1>eGFR・CCr計算</h1>
+
+    <label for="age">年齢（歳）</label>
+    <input type="number" id="age" inputmode="numeric" placeholder="例：70">
+
+    <label for="sex">性別</label>
+    <select id="sex">
+      <option value="male">男性</option>
+      <option value="female">女性</option>
+    </select>
+
+    <label for="weight">体重（kg）</label>
+    <input type="number" id="weight" inputmode="decimal" step="0.1" placeholder="例：60">
+
+    <label for="scr">SCr：血清クレアチニン（mg/dL）</label>
+    <input type="number" id="scr" inputmode="decimal" step="0.01" placeholder="例：1.00">
+
+    <button onclick="calculate()">計算する</button>
+
+    <div class="result" id="result">
+      <span class="small">結果がここに表示されます</span>
+    </div>
+
+    <div class="note">
+      ※ eGFR：194 × SCr<sup>-1.094</sup> × 年齢<sup>-0.287</sup><br>
+      ※ 女性は eGFR ×0.739<br>
+      ※ CCr：Cockcroft-Gault式<br>
+      ※ 女性は CCr ×0.85
+    </div>
+  </div>
+</div>
+
+<script>
+function calculate() {
+  const age = Number(document.getElementById("age").value);
+  const sex = document.getElementById("sex").value;
+  const weight = Number(document.getElementById("weight").value);
+  const scr = Number(document.getElementById("scr").value);
+  const result = document.getElementById("result");
+
+  if (!age || !weight || !scr || age <= 0 || weight <= 0 || scr <= 0) {
+    result.innerHTML = "年齢・体重・SCrを正しく入力してください。";
+    return;
+  }
+
+  let egfr = 194 * Math.pow(scr, -1.094) * Math.pow(age, -0.287);
+  if (sex === "female") {
+    egfr *= 0.739;
+  }
+
+  let ccr = ((140 - age) * weight) / (72 * scr);
+  if (sex === "female") {
+    ccr *= 0.85;
+  }
+
+  result.innerHTML = `
+    <strong>eGFR</strong><br>
+    ${egfr.toFixed(1)} mL/min/1.73㎡<br><br>
+    <strong>CCr</strong><br>
+    ${ccr.toFixed(1)} mL/min
+  `;
+}
+</script>
+</body>
+</html>
