@@ -1,1 +1,1 @@
-# tomatored
+# eGFR・CCr計算アプリ
